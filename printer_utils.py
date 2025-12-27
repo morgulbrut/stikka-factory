@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 import streamlit as st
 from job_queue import print_queue
-from config_manager import PRIVACY_MODE, FALLBACK_LABEL_TYPE, FALLBACK_MODELS
+from config_manager import PRIVACY_MODE, DEBUG_MODE, FALLBACK_LABEL_TYPE, FALLBACK_MODELS
 
 logger = logging.getLogger("sticker_factory.printer_utils")
 
@@ -48,11 +48,38 @@ class PrinterInfo:
         setattr(self, key, value)
 
 
+def create_virtual_printer():
+    """Create a virtual printer for debug mode."""
+    virtual_printer = PrinterInfo(
+        identifier="virtual/debug/0000",
+        backend="virtual",
+        model="QL-570",
+        protocol="virtual",
+        vendor_id="0000",
+        product_id="0000",
+        serial_number="DEBUG-0000",
+        name="Virtual Debug Printer",
+        status="Waiting to receive",
+        label_type=FALLBACK_LABEL_TYPE,
+        label_size=f"{FALLBACK_LABEL_TYPE}mm",
+        label_width=get_label_width(FALLBACK_LABEL_TYPE),
+        label_height=None,
+    )
+    logger.info("Created virtual debug printer")
+    return virtual_printer
+
+
 def find_and_parse_printer():
     logger.info("Searching for Brother QL printers...")
     model_manager = ModelsManager()
     
     found_printers = []
+    
+    # Add virtual printer if debug mode is enabled
+    if DEBUG_MODE:
+        virtual_printer = create_virtual_printer()
+        found_printers.append(virtual_printer)
+        logger.info("DEBUG MODE: Added virtual printer to available printers")
 
     for backend_name in ["pyusb", "linux_kernel"]:
         try:
@@ -231,6 +258,29 @@ def process_print_job(image, printer_info, temp_file_path, rotate=0, dither=Fals
     """
 
     try:
+        # If debug mode is enabled, use virtual printer (save to debug directory)
+        if DEBUG_MODE:
+            debug_dir = Path("debug")
+            debug_dir.mkdir(exist_ok=True)
+            
+            # Generate a filename with timestamp
+            timestamp = int(time.time())
+            filename = f"{timestamp}_debug_print_{printer_info['name'].replace(' ', '_')}.png"
+            output_path = debug_dir / filename
+            
+            # Copy the image to debug directory
+            image.save(output_path, "PNG")
+            logger.info(f"DEBUG MODE: Virtual printer saved file to {output_path}")
+            logger.debug(f"""
+            Debug print parameters:
+            - Label type: {label_type}
+            - Rotate: {rotate}
+            - Dither: {dither}
+            - Model: {printer_info['model']}
+            - Output: {output_path}
+            """)
+            return True, None
+        
         # Prepare the image for printing
         qlr = BrotherQLRaster(printer_info["model"])
         

@@ -5,6 +5,8 @@
 [app]
 title = "STIKKA FACTORY"
 privacy_mode = true
+debug_mode = true
+enable_comfy = true
 
 [ui]
 history_limit = 15
@@ -13,6 +15,10 @@ items_per_page = 5
 [txt2img]
 # URL for Stable Diffusion API endpoint
 url = "http://localhost:7860"
+
+[comfy]
+# URL for Comfy AI API endpoint
+url = "https://ai.stikka.art"
 
 [logging]
 file = false
