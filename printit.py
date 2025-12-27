@@ -31,6 +31,9 @@ from image_utils import (
     add_border,
     apply_histogram_equalization,
     img_concat_v,
+    determine_tile_rows,
+    split_image_into_tiles,
+    create_tile_preview,
 )
 from printer_utils import (
     find_and_parse_printer,
@@ -335,6 +338,16 @@ else:
                         resize_image_to_width=resize_image_to_width,
                         preper_image=preper_image,
                         printer_info=selected_printer,
+                    )
+                elif tab_name == "Tiling":
+                    import tabs.tiling as tiling_module
+                    tiling_module.render(
+                        preper_image=preper_image,
+                        print_image=print_image,
+                        printer_info=selected_printer,
+                        determine_tile_rows=determine_tile_rows,
+                        split_image_into_tiles=split_image_into_tiles,
+                        create_tile_preview=create_tile_preview,
                     )
                 elif tab_name == "History":
                     import tabs.history as history_module

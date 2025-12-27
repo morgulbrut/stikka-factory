@@ -19,6 +19,8 @@ url = "http://localhost:7860"
 [comfy]
 # URL for Comfy AI API endpoint
 url = "https://ai.stikka.art"
+# Polling interval in seconds for checking workflow status
+poll_interval = 1
 
 [logging]
 file = false
@@ -33,6 +35,7 @@ enabled = [
     "Label",
     "Sticker",
     "Sticker Pro",
+    "Tiling",
     "Text2image",
     "Webcam",
     "Dog",

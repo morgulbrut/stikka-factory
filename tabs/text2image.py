@@ -30,6 +30,7 @@ def _load_config():
 _CONFIG = _load_config()
 TXT2IMG_URL = _CONFIG.get("txt2img", {}).get("url", "http://localhost:7860")
 COMFY_URL = _CONFIG.get("comfy", {}).get("url", "http://localhost:8188")
+COMFY_POLL_INTERVAL = _CONFIG.get("comfy", {}).get("poll_interval", 5)
 
 # Get Comfy AI credentials from secrets
 def get_comfy_auth():
@@ -247,7 +248,7 @@ def render(submit_func, generate_image_func, preper_image, print_image, printer_
                 
                 time_since_last_poll = current_time - st.session_state.comfy_last_poll_time
                 
-                if time_since_last_poll >= 5.0 or attempts == 0:
+                if time_since_last_poll >= COMFY_POLL_INTERVAL or attempts == 0:
                     # Poll for status
                     st.session_state.comfy_poll_attempts += 1
                     st.session_state.comfy_last_poll_time = current_time
@@ -279,17 +280,17 @@ def render(submit_func, generate_image_func, preper_image, print_image, printer_
                             
                             if not image_found:
                                 # Still processing, schedule next poll
-                                st.info(f"Workflow still processing... Next check in 5 seconds (Attempt {st.session_state.comfy_poll_attempts}/{max_attempts})")
+                                st.info(f"Workflow still processing... Next check in {COMFY_POLL_INTERVAL} seconds (Attempt {st.session_state.comfy_poll_attempts}/{max_attempts})")
                                 time.sleep(0.5)
                                 st.rerun()
                         else:
                             # History not found yet, schedule next poll
-                            st.info(f"Waiting for workflow to start... Next check in 5 seconds (Attempt {st.session_state.comfy_poll_attempts}/{max_attempts})")
+                            st.info(f"Waiting for workflow to start... Next check in {COMFY_POLL_INTERVAL} seconds (Attempt {st.session_state.comfy_poll_attempts}/{max_attempts})")
                             time.sleep(0.5)
                             st.rerun()
                 else:
-                    # Wait until 5 seconds have passed
-                    remaining_time = 5.0 - time_since_last_poll
+                    # Wait until poll interval has passed
+                    remaining_time = COMFY_POLL_INTERVAL - time_since_last_poll
                     st.info(f"Waiting... Next check in {remaining_time:.1f} seconds (Attempt {attempts + 1}/{max_attempts})")
                     time.sleep(0.5)
                     st.rerun()
@@ -298,7 +299,8 @@ def render(submit_func, generate_image_func, preper_image, print_image, printer_
                 if not st.session_state.comfy_poll_failed:
                     st.session_state.comfy_poll_failed = True
                     st.session_state.comfy_generating = False
-                    st.error(f"❌ Workflow did not complete after {max_attempts} attempts (50 seconds). The workflow may have failed or is taking longer than expected.")
+                    total_time = max_attempts * COMFY_POLL_INTERVAL
+                    st.error(f"❌ Workflow did not complete after {max_attempts} attempts ({total_time} seconds). The workflow may have failed or is taking longer than expected.")
                     logger.error(f"Comfy AI workflow {prompt_id} did not complete after {max_attempts} polling attempts")
         
         # Display generated Comfy AI image
