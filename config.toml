@@ -3,7 +3,7 @@
 # API keys should be in .streamlit/secrets.toml
 
 [app]
-title = "STIKKA FACTORY"
+title = "✨ Stikka Centraal ✨"
 privacy_mode = true
 debug_mode = false
 enable_comfy = true
@@ -32,14 +32,14 @@ stdout_level = "DEBUG"
 # Enable or disable tabs by setting them to true or false
 # Order in this list determines tab order in the app
 enabled = [
-    "Label",
     "Sticker",
     "Sticker Pro",
     "Tiling",
+    "Label",
     "Text2image",
     "Webcam",
-    "Dog",
     "Cat",
+    "Dog",
     "History",
     "Stats",
     "FAQ",
