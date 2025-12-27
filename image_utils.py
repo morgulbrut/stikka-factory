@@ -107,24 +107,9 @@ def img_concat_v(im1, im2, image_width):
 
 def determine_tile_rows(image, label_width):
     """
-    Determine the number of rows (2 or 3) based on image aspect ratio.
-    Taller images get more rows.
+    Always return 2 rows to save paper.
     """
-    # Resize image to label width to get the actual height
-    width, height = image.size
-    if width != label_width:
-        scaled_height = int((label_width / width) * height)
-    else:
-        scaled_height = height
-    
-    # Estimate average label height (assuming ~200-300 pixels per label for continuous roll)
-    # If scaled height is more than 1.5x a single label, use 3 rows, otherwise 2
-    estimated_single_label_height = 250  # Approximate height for one label
-    
-    if scaled_height > estimated_single_label_height * 1.5:
-        return 3
-    else:
-        return 2
+    return 2
 
 
 def split_image_into_tiles(image, label_width, num_rows):

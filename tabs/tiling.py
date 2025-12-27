@@ -36,7 +36,7 @@ def fetch_image_from_url(url):
 def render(preper_image, print_image, printer_info, determine_tile_rows, split_image_into_tiles, create_tile_preview):
     """Render the Tiling tab."""
     st.subheader(":printer: tiling mode")
-    st.markdown("Upload an image to split it into 2 or 3 rows of labels based on aspect ratio.")
+    st.markdown("Upload an image to split it into 2 rows of labels")
 
     label_width = printer_info['label_width']
     
@@ -88,7 +88,7 @@ def render(preper_image, print_image, printer_info, determine_tile_rows, split_i
         # Determine number of rows based on aspect ratio
         num_rows = determine_tile_rows(image_to_process, label_width)
         
-        st.info(f"Image will be split into **{num_rows} rows** of labels based on aspect ratio.")
+        st.info(f"Image will be split into **{num_rows} rows** of labels")
         
         # Split image into tiles
         tiles = split_image_into_tiles(image_to_process, label_width, num_rows)
@@ -106,25 +106,19 @@ def render(preper_image, print_image, printer_info, determine_tile_rows, split_i
         
         # Print options
         st.subheader("Print Options")
-        col1, col2 = st.columns(2)
-        with col1:
-            dither_checkbox = st.checkbox(
-                "Dither - _use for high detail, true by default_", 
-                value=True,
-                key="tiling_dither"
-            )
-        with col2:
-            rotate_checkbox = st.checkbox("Rotate - _90 degrees_", key="tiling_rotate")
+        dither_checkbox = st.checkbox(
+            "Dither - _use for high detail, true by default_", 
+            value=True,
+            key="tiling_dither"
+        )
         
         # Print all tiles button
-        button_text = "Print All Tiles"
-        if rotate_checkbox:
-            button_text += " (Rotated)"
+        button_text = "Print All Tiles (Rotated 90°)"
         if dither_checkbox:
             button_text += " (Dithered)"
         
         if st.button(button_text, key="tiling_print_all", type="primary"):
-            rotate_value = 90 if rotate_checkbox else 0
+            rotate_value = 90  # Always rotate 90 degrees
             dither_value = dither_checkbox
             
             st.info(f"Printing {len(tiles)} tiles...")
@@ -156,7 +150,7 @@ def render(preper_image, print_image, printer_info, determine_tile_rows, split_i
         for i, (col, tile) in enumerate(zip(tile_cols, tiles)):
             with col:
                 if st.button(f"Print Tile {i+1}", key=f"tiling_print_{i}"):
-                    rotate_value = 90 if rotate_checkbox else 0
+                    rotate_value = 90  # Always rotate 90 degrees
                     dither_value = dither_checkbox
                     with st.spinner(f"Printing tile {i+1}..."):
                         print_image(
