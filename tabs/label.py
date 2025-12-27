@@ -258,11 +258,11 @@ def render(printer_info, get_fonts, find_url, preper_image, print_image, img_con
                 imgqr = img_concat_v(img, imgqr,image_width=label_width)
                 st.image(imgqr, width='stretch')
                 if st.button("Print sticker+qr", key="print_sticker_qr"):
-                    print_image(imgqr)
+                    print_image(img,printer_info=printer_info)
             elif imgqr and not (img):
                 if st.button("Print sticker", key="print_qr_only"):
-                    print_image(imgqr)
-
+                    print_image(img,printer_info=printer_info)
+        
         if text and not (qrurl):
             st.image(img, width='stretch')
             if st.button("Print sticker", key="print_text_only"):
