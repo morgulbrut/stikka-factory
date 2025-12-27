@@ -168,7 +168,7 @@ if not os.path.exists(".streamlit/secrets.toml"):
     """)
 
 st.title(f":rainbow[**{APP_TITLE}**]")
-st.subheader(":primary[:printer: hard copies of images and text]")
+st.subheader(":primary[:heart: Kleben und kleben lassen :heart:]")
 
 
 # ============================================================================

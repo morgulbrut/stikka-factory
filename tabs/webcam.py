@@ -7,7 +7,7 @@ from PIL import Image
 
 def render(preper_image,printer_info, print_image):
     """Render the Webcam tab."""
-    st.subheader(":printer: a snapshot")
+    st.subheader(":printer: a selfie")
     on = st.toggle("ask user for camera permission")
     if on:
         picture = st.camera_input("Take a picture")

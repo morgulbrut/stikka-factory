@@ -184,7 +184,7 @@ def render(submit_func, generate_image_func, preper_image, print_image, printer_
         st.write("using tami stable diffusion bot")
     
     if generation_method == "Comfy AI":
-        st.write("Generate images using Comfy AI workflow")
+        st.write("Generate images using Comfy AI SD1.5 workflow")
         
         if COMFY_URL == "http://localhost:8188":
             st.info(f"Using default Comfy AI URL: {COMFY_URL}. Configure comfy.url in config.toml for custom endpoint.")
