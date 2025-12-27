@@ -251,6 +251,21 @@ else:
             st.sidebar.markdown(f":green[**{p['name']}**]\n- Label Size: :{label_color}[{p['label_size']}]\n- Status:  :{status_color}[{p['status']}]")
         else:     
             st.sidebar.markdown(f":primary[**{p['name']}**]\n- Label Size: :{label_color}[{p['label_size']}]\n- Status:  :{status_color}[{p['status']}]")
+    
+    # Stats section below Settings
+    st.sidebar.markdown("---")
+    try:
+        from stats_utils import get_prints_today, get_prints_total
+        st.sidebar.subheader(":primary[Stats]")
+        prints_today = get_prints_today()
+        prints_total = get_prints_total()
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            st.sidebar.metric("Prints Today", prints_today)
+        with col2:
+            st.sidebar.metric("Prints Total", prints_total)
+    except Exception as e:
+        logger.warning(f"Failed to load stats in sidebar: {e}")
 
 
 
@@ -356,6 +371,9 @@ else:
                         print_image=print_image,
                         preper_image=preper_image,
                     )
+                elif tab_name == "Stats":
+                    import tabs.stats as stats_module
+                    stats_module.render()
                 elif tab_name == "FAQ":
                     import tabs.faq as faq_module
                     faq_module.render()

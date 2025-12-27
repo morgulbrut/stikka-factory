@@ -41,6 +41,7 @@ enabled = [
     "Dog",
     "Cat",
     "History",
+    "Stats",
     "FAQ",
 ]
 

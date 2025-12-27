@@ -127,3 +127,6 @@ fonts/*.otf
 
 # debug dir
 debug/*
+
+# stats
+print_stats.json
