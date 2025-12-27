@@ -35,6 +35,7 @@ enabled = [
     "Label",
     "Sticker",
     "Sticker Pro",
+    "Tiling",
     "Text2image",
     "Webcam",
     "Dog",

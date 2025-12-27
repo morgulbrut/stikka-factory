@@ -103,3 +103,113 @@ def img_concat_v(im1, im2, image_width):
     logger.debug(f"Resulting image size: {dst.size}")
     logger.debug(dst)   
     return dst
+
+
+def determine_tile_rows(image, label_width):
+    """
+    Determine the number of rows (2 or 3) based on image aspect ratio.
+    Taller images get more rows.
+    """
+    # Resize image to label width to get the actual height
+    width, height = image.size
+    if width != label_width:
+        scaled_height = int((label_width / width) * height)
+    else:
+        scaled_height = height
+    
+    # Estimate average label height (assuming ~200-300 pixels per label for continuous roll)
+    # If scaled height is more than 1.5x a single label, use 3 rows, otherwise 2
+    estimated_single_label_height = 250  # Approximate height for one label
+    
+    if scaled_height > estimated_single_label_height * 1.5:
+        return 3
+    else:
+        return 2
+
+
+def split_image_into_tiles(image, label_width, num_rows):
+    """
+    Split an image into tiles for printing across multiple labels.
+    
+    Args:
+        image: PIL Image to split
+        label_width: Width of each label in pixels
+        num_rows: Number of rows (2 or 3)
+    
+    Returns:
+        List of PIL Images, one for each tile
+    """
+    # Convert RGBA to RGB if needed
+    if image.mode == "RGBA":
+        background = Image.new("RGBA", image.size, "white")
+        image = Image.alpha_composite(background, image)
+        image = image.convert("RGB")
+    
+    # Resize image to label width, maintaining aspect ratio
+    width, height = image.size
+    if width != label_width:
+        new_height = int((label_width / width) * height)
+        image = image.resize((label_width, new_height), Image.LANCZOS)
+        logger.debug(f"Resized image to {label_width}x{new_height} for tiling")
+    
+    width, height = image.size
+    
+    # Calculate tile height
+    tile_height = height // num_rows
+    remainder = height % num_rows
+    
+    tiles = []
+    y_offset = 0
+    
+    for i in range(num_rows):
+        # Add remainder to the last tile
+        current_tile_height = tile_height + (remainder if i == num_rows - 1 else 0)
+        
+        # Extract tile
+        tile = image.crop((0, y_offset, width, y_offset + current_tile_height))
+        tiles.append(tile)
+        
+        y_offset += current_tile_height
+        logger.debug(f"Created tile {i+1}/{num_rows}: {tile.size}")
+    
+    return tiles
+
+
+def create_tile_preview(tiles, label_width):
+    """
+    Create a preview image showing all tiles arranged in a grid.
+    
+    Args:
+        tiles: List of PIL Images (tiles)
+        label_width: Width of each label in pixels
+    
+    Returns:
+        PIL Image showing all tiles in a grid layout
+    """
+    num_tiles = len(tiles)
+    
+    # Calculate preview dimensions
+    # Scale down tiles for preview (max 300px wide per tile)
+    preview_scale = min(1.0, 300 / label_width)
+    preview_tile_width = int(label_width * preview_scale)
+    
+    # Find max tile height for preview
+    max_tile_height = max(tile.height for tile in tiles)
+    preview_tile_height = int(max_tile_height * preview_scale)
+    
+    # Create preview image
+    # Arrange tiles in a single column for preview
+    preview_width = preview_tile_width
+    preview_height = preview_tile_height * num_tiles + (10 * (num_tiles - 1))  # 10px spacing between tiles
+    
+    preview = Image.new("RGB", (preview_width, preview_height), "white")
+    
+    y_offset = 0
+    for i, tile in enumerate(tiles):
+        # Resize tile for preview
+        tile_preview = tile.resize((preview_tile_width, int(tile.height * preview_scale)), Image.LANCZOS)
+        preview.paste(tile_preview, (0, y_offset))
+        y_offset += tile_preview.height + 10  # Add spacing
+    
+    logger.debug(f"Created preview image: {preview.size}")
+    return preview
